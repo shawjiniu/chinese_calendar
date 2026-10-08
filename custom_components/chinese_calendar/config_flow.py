@@ -8,21 +8,11 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import callback
-from homeassistant.helpers import config_validation as cv, selector
+from homeassistant.helpers import config_validation as cv
 
 from .const import DEFAULT_NAME, DOMAIN
 
 _SINGLETON = DOMAIN
-
-_TYPE_SELECTOR = selector.selector({
-    "select": {
-        "options": [
-            {"value": "solar", "label": "公历"},
-            {"value": "lunar", "label": "农历"},
-        ],
-        "mode": "dropdown",
-    }
-})
 
 
 def _date_validator(value: str) -> str:
@@ -37,7 +27,7 @@ def _date_validator(value: str) -> str:
 
 _ANNIVERSARY_ITEM = vol.Schema({
     vol.Required("name"): cv.string,
-    vol.Optional("type", default="solar"): _TYPE_SELECTOR,
+    vol.Optional("type", default="solar"): vol.In(["solar", "lunar"]),
     vol.Required("date"): vol.All(cv.string, _date_validator),
 })
 
@@ -46,8 +36,7 @@ def _step_user_schema(defaults: dict | None = None) -> vol.Schema:
     d = defaults or {}
     return vol.Schema({
         vol.Optional("name", default=d.get("name", DEFAULT_NAME)): cv.string,
-        vol.Optional("holiday_extra", default=d.get("holiday_extra", "")):
-            selector.selector({"text": {"multiline": True}}),
+        vol.Optional("holiday_extra", default=d.get("holiday_extra", "")): cv.string,
     })
 
 
