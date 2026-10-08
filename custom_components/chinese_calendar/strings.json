@@ -7,13 +7,19 @@
         "data": {
           "name": "Name",
           "holiday_extra": "Holiday data override (optional)"
+        },
+        "data_description": {
+          "holiday_extra": "Optional. Built-in statutory holiday data covers up to 2026. Paste incremental/fix data (lunar-python HolidayUtil.fix format, 18 chars per day) if the library is not up to date. Leave empty to use built-in data."
         }
       },
       "anniversary": {
         "title": "Anniversaries",
-        "description": "Multiple entries separated by ';'. Format: name|type|date. type = solar or lunar; date = MMDD or YYYYMMDD. Example: Mom|lunar|0321; Wedding|solar|20101010",
+        "description": "Add solar/lunar anniversaries (optional).",
         "data": {
           "anniversaries_text": "Anniversaries"
+        },
+        "data_description": {
+          "anniversaries_text": "Separate entries with ';'. Entry format: name|type|date. type = solar (Gregorian) or lunar (Chinese lunar); date = MMDD (recur yearly) or YYYYMMDD (with year, shows age/anniversary). Example: Mom|lunar|0321; Wedding|solar|20101010"
         }
       }
     },
@@ -28,12 +34,18 @@
         "data": {
           "name": "Name",
           "holiday_extra": "Holiday data override (optional)"
+        },
+        "data_description": {
+          "holiday_extra": "Optional. Built-in statutory holiday data covers up to 2026. Paste incremental/fix data (lunar-python HolidayUtil.fix format, 18 chars per day) if the library is not up to date. Leave empty to use built-in data."
         }
       },
       "anniversary": {
         "title": "Anniversaries",
         "data": {
           "anniversaries_text": "Anniversaries"
+        },
+        "data_description": {
+          "anniversaries_text": "Separate entries with ';'. Entry format: name|type|date. type = solar (Gregorian) or lunar (Chinese lunar); date = MMDD (recur yearly) or YYYYMMDD (with year, shows age/anniversary). Example: Mom|lunar|0321; Wedding|solar|20101010"
         }
       }
     }

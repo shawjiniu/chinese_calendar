@@ -7,13 +7,19 @@
         "data": {
           "name": "名称",
           "holiday_extra": "节假日数据覆盖（可选）"
+        },
+        "data_description": {
+          "holiday_extra": "可选。内置法定节假日数据截至 2026 年；若库版本未及时更新，可在此粘贴增量/修正数据（lunar-python HolidayUtil.fix 的 18 位/天格式）。留空则使用内置数据。"
         }
       },
       "anniversary": {
         "title": "纪念日",
-        "description": "多条用分号分隔，单条格式：名称|类型|日期。类型填 solar(公历) 或 lunar(农历)；日期填 MMDD 或 YYYYMMDD。例：妈妈生日|lunar|0321; 结婚纪念日|solar|20101010",
+        "description": "添加公历/农历纪念日（可选）。",
         "data": {
           "anniversaries_text": "纪念日列表"
+        },
+        "data_description": {
+          "anniversaries_text": "多条用分号 ';' 分隔；单条格式：名称|类型|日期。类型 solar=公历、lunar=农历；日期 MMDD（每年循环）或 YYYYMMDD（带年份，自动显示周岁/周年）。例：妈妈生日|lunar|0321; 结婚纪念日|solar|20101010"
         }
       }
     },
@@ -28,12 +34,18 @@
         "data": {
           "name": "名称",
           "holiday_extra": "节假日数据覆盖（可选）"
+        },
+        "data_description": {
+          "holiday_extra": "可选。内置法定节假日数据截至 2026 年；若库版本未及时更新，可在此粘贴增量/修正数据（lunar-python HolidayUtil.fix 的 18 位/天格式）。留空则使用内置数据。"
         }
       },
       "anniversary": {
         "title": "纪念日",
         "data": {
           "anniversaries_text": "纪念日列表"
+        },
+        "data_description": {
+          "anniversaries_text": "多条用分号 ';' 分隔；单条格式：名称|类型|日期。类型 solar=公历、lunar=农历；日期 MMDD（每年循环）或 YYYYMMDD（带年份，自动显示周岁/周年）。例：妈妈生日|lunar|0321; 结婚纪念日|solar|20101010"
         }
       }
     }
