@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Chinese Calendar",
+        "description": "Set up the Chinese Calendar integration.",
+        "data": {
+          "name": "Name",
+          "holiday_extra": "Holiday data override (optional)"
+        }
+      },
+      "anniversary": {
+        "title": "Anniversaries",
+        "description": "Add solar/lunar anniversaries. Date format: MMDD or YYYYMMDD.",
+        "data": {
+          "anniversaries": "Anniversaries"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This integration is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Basic settings",
+        "data": {
+          "name": "Name",
+          "holiday_extra": "Holiday data override (optional)"
+        }
+      },
+      "anniversary": {
+        "title": "Anniversaries",
+        "data": {
+          "anniversaries": "Anniversaries"
+        }
+      }
+    }
+  }
+}

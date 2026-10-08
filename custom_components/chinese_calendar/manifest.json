@@ -1,0 +1,12 @@
+{
+  "domain": "chinese_calendar",
+  "name": "中国日历",
+  "version": "0.1.0",
+  "codeowners": [],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/",
+  "integration_type": "service",
+  "iot_class": "local_polling",
+  "requirements": ["lunar_python>=1.4.8"]
+}
