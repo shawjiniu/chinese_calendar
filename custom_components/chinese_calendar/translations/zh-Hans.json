@@ -11,9 +11,9 @@
       },
       "anniversary": {
         "title": "纪念日",
-        "description": "添加公历/农历纪念日。日期格式：MMDD 或 YYYYMMDD。",
+        "description": "多条用分号分隔，单条格式：名称|类型|日期。类型填 solar(公历) 或 lunar(农历)；日期填 MMDD 或 YYYYMMDD。例：妈妈生日|lunar|0321; 结婚纪念日|solar|20101010",
         "data": {
-          "anniversaries": "纪念日列表"
+          "anniversaries_text": "纪念日列表"
         }
       }
     },
@@ -33,7 +33,7 @@
       "anniversary": {
         "title": "纪念日",
         "data": {
-          "anniversaries": "纪念日列表"
+          "anniversaries_text": "纪念日列表"
         }
       }
     }

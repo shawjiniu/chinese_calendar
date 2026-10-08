@@ -15,21 +15,41 @@ from .const import DEFAULT_NAME, DOMAIN
 _SINGLETON = DOMAIN
 
 
-def _date_validator(value: str) -> str:
-    if not re.fullmatch(r"\d{4}|\d{8}", value):
-        raise vol.Invalid("日期需为 MMDD 或 YYYYMMDD")
-    month = int(value[-4:-2])
-    day = int(value[-2:])
-    if not 1 <= month <= 12 or not 1 <= day <= 31:
-        raise vol.Invalid("月份或日期不合法")
-    return value
+def _parse_anniversaries_text(text: str) -> list[dict]:
+    """解析 '名称|类型|日期' 条目（以 ; 或换行分隔）。
+
+    类型：solar(公历) / lunar(农历)，缺省 solar。
+    日期：MMDD 或 YYYYMMDD。非法条目自动跳过。
+    """
+    result: list[dict] = []
+    for chunk in re.split(r"[;\n]+", text or ""):
+        chunk = chunk.strip()
+        if not chunk:
+            continue
+        parts = [p.strip() for p in chunk.split("|")]
+        if len(parts) < 3:
+            continue
+        name, atype, date = parts[0], parts[1].lower(), parts[2]
+        if atype not in ("solar", "lunar"):
+            atype = "solar"
+        if not name or not re.fullmatch(r"\d{4}|\d{8}", date):
+            continue
+        result.append({"name": name, "type": atype, "date": date})
+    return result
 
 
-_ANNIVERSARY_ITEM = vol.Schema({
-    vol.Required("name"): cv.string,
-    vol.Optional("type", default="solar"): vol.In(["solar", "lunar"]),
-    vol.Required("date"): vol.All(cv.string, _date_validator),
-})
+def _format_anniversaries_text(items) -> str:
+    out: list[str] = []
+    for it in items or []:
+        try:
+            name = str(it.get("name", "")).strip()
+            atype = str(it.get("type", "solar"))
+            date = str(it.get("date", "")).strip()
+        except Exception:  # noqa: BLE001
+            continue
+        if name and date:
+            out.append(f"{name}|{atype}|{date}")
+    return "; ".join(out)
 
 
 def _step_user_schema(defaults: dict | None = None) -> vol.Schema:
@@ -43,8 +63,9 @@ def _step_user_schema(defaults: dict | None = None) -> vol.Schema:
 def _step_anniversary_schema(defaults: dict | None = None) -> vol.Schema:
     d = defaults or {}
     return vol.Schema({
-        vol.Optional("anniversaries", default=d.get("anniversaries", [])):
-            vol.All(cv.ensure_list, [_ANNIVERSARY_ITEM]),
+        vol.Optional(
+            "anniversaries_text", default=d.get("anniversaries_text", "")
+        ): cv.string,
     })
 
 
@@ -76,11 +97,18 @@ class ChineseCalendarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 options={
                     "name": name,
                     "holiday_extra": self._data.get("holiday_extra", ""),
-                    "anniversaries": self._data.get("anniversaries", []),
+                    "anniversaries": _parse_anniversaries_text(
+                        self._data.get("anniversaries_text", "")
+                    ),
                 },
             )
         return self.async_show_form(
-            step_id="anniversary", data_schema=_step_anniversary_schema()
+            step_id="anniversary",
+            data_schema=_step_anniversary_schema({
+                "anniversaries_text": _format_anniversaries_text(
+                    self._data.get("anniversaries", [])
+                )
+            }),
         )
 
     @staticmethod
@@ -100,14 +128,16 @@ class ChineseCalendarOptionsFlow(config_entries.OptionsFlow):
         return {
             "name": o.get("name", DEFAULT_NAME),
             "holiday_extra": o.get("holiday_extra", ""),
-            "anniversaries": o.get("anniversaries", []),
+            "anniversaries_text": _format_anniversaries_text(o.get("anniversaries", [])),
         }
 
     async def async_step_init(self, user_input: dict | None = None):
         if user_input is not None:
             self._updated.update(user_input)
             return await self.async_step_anniversary()
-        return self.async_show_form(step_id="init", data_schema=_step_user_schema(self._defaults()))
+        return self.async_show_form(
+            step_id="init", data_schema=_step_user_schema(self._defaults())
+        )
 
     async def async_step_anniversary(self, user_input: dict | None = None):
         if user_input is not None:
@@ -116,7 +146,9 @@ class ChineseCalendarOptionsFlow(config_entries.OptionsFlow):
             merged = {
                 "name": self._updated.get("name", d["name"]),
                 "holiday_extra": self._updated.get("holiday_extra", d["holiday_extra"]),
-                "anniversaries": self._updated.get("anniversaries", d["anniversaries"]),
+                "anniversaries": _parse_anniversaries_text(
+                    self._updated.get("anniversaries_text", d["anniversaries_text"])
+                ),
             }
             return self.async_create_entry(title=merged["name"], data=merged)
         return self.async_show_form(

@@ -11,9 +11,9 @@
       },
       "anniversary": {
         "title": "Anniversaries",
-        "description": "Add solar/lunar anniversaries. Date format: MMDD or YYYYMMDD.",
+        "description": "Multiple entries separated by ';'. Format: name|type|date. type = solar or lunar; date = MMDD or YYYYMMDD. Example: Mom|lunar|0321; Wedding|solar|20101010",
         "data": {
-          "anniversaries": "Anniversaries"
+          "anniversaries_text": "Anniversaries"
         }
       }
     },
@@ -33,7 +33,7 @@
       "anniversary": {
         "title": "Anniversaries",
         "data": {
-          "anniversaries": "Anniversaries"
+          "anniversaries_text": "Anniversaries"
         }
       }
     }
