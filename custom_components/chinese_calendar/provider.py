@@ -223,21 +223,30 @@ def term_of(lunar: Lunar) -> tuple[str, str]:
 
 
 def _parse_custom_holidays(items) -> list[dict]:
-    """解析自定义假日，返回 [{name, month, day}]。"""
+    """解析自定义假日，返回 [{name, month, day, year}]。
+
+    date 为 MMDD（每年循环，year=None）或 YYYYMMDD（一次性，year 非 None）。
+    """
     result: list[dict] = []
     for item in items or []:
         try:
             name = str(item.get("name", "")).strip()
             raw = str(item.get("date", "")).strip()
-            if len(raw) != 4:
+            if len(raw) == 4:
+                year = None
+                month = int(raw[:2])
+                day = int(raw[2:])
+            elif len(raw) == 8:
+                year = int(raw[:4])
+                month = int(raw[4:6])
+                day = int(raw[6:])
+            else:
                 continue
-            month = int(raw[:2])
-            day = int(raw[2:])
             if not (1 <= month <= 12 and 1 <= day <= 31):
                 continue
             if not name:
                 continue
-            result.append({"name": name, "month": month, "day": day})
+            result.append({"name": name, "month": month, "day": day, "year": year})
         except Exception:  # noqa: BLE001
             continue
     return result
@@ -246,8 +255,12 @@ def _parse_custom_holidays(items) -> list[dict]:
 def _custom_holiday_name(dd: date, custom_holidays) -> str:
     """返回当天自定义假日名，无则空串。"""
     for h in custom_holidays or []:
-        if (dd.month, dd.day) == (h["month"], h["day"]):
-            return h["name"]
+        if h["year"] is not None:
+            if (dd.year, dd.month, dd.day) == (h["year"], h["month"], h["day"]):
+                return h["name"]
+        else:
+            if (dd.month, dd.day) == (h["month"], h["day"]):
+                return h["name"]
     return ""
 
 

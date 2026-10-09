@@ -53,7 +53,7 @@ def _format_anniversaries_text(items) -> str:
 
 
 def _parse_custom_holidays_text(text: str) -> list[dict]:
-    """解析 '名称|日期' 条目（以 ; 或换行分隔），日期为 MMDD。"""
+    """解析 '名称|日期' 条目（以 ; 或换行分隔），日期为 MMDD 或 YYYYMMDD。"""
     result: list[dict] = []
     for chunk in re.split(r"[;\n]+", text or ""):
         chunk = chunk.strip()
@@ -63,10 +63,10 @@ def _parse_custom_holidays_text(text: str) -> list[dict]:
         if len(parts) < 2:
             continue
         name, date = parts[0], parts[1]
-        if not name or not re.fullmatch(r"\d{4}", date):
+        if not name or not re.fullmatch(r"\d{4}|\d{8}", date):
             continue
-        month = int(date[:2])
-        day = int(date[2:])
+        month = int(date[-4:-2])
+        day = int(date[-2:])
         if not (1 <= month <= 12 and 1 <= day <= 31):
             continue
         result.append({"name": name, "date": date})

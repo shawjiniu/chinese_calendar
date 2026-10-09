@@ -12,13 +12,19 @@ from .const import DOMAIN, PLATFORMS
 from .services import (
     GET_MONTH_SCHEMA,
     REMOVE_ANNIVERSARY_SCHEMA,
+    REMOVE_CUSTOM_HOLIDAY_SCHEMA,
     SERVICE_GET_MONTH,
     SERVICE_REMOVE_ANNIVERSARY,
+    SERVICE_REMOVE_CUSTOM_HOLIDAY,
     SERVICE_SET_ANNIVERSARY,
+    SERVICE_SET_CUSTOM_HOLIDAY,
     SET_ANNIVERSARY_SCHEMA,
+    SET_CUSTOM_HOLIDAY_SCHEMA,
     async_get_month,
     async_remove_anniversary,
+    async_remove_custom_holiday,
     async_set_anniversary,
+    async_set_custom_holiday,
 )
 
 
@@ -80,4 +86,18 @@ def _register_services(hass: HomeAssistant) -> None:
             async_get_month,
             schema=GET_MONTH_SCHEMA,
             supports_response=SupportsResponse.OPTIONAL,
+        )
+    if not hass.services.has_service(DOMAIN, SERVICE_SET_CUSTOM_HOLIDAY):
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SET_CUSTOM_HOLIDAY,
+            async_set_custom_holiday,
+            schema=SET_CUSTOM_HOLIDAY_SCHEMA,
+        )
+    if not hass.services.has_service(DOMAIN, SERVICE_REMOVE_CUSTOM_HOLIDAY):
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_REMOVE_CUSTOM_HOLIDAY,
+            async_remove_custom_holiday,
+            schema=REMOVE_CUSTOM_HOLIDAY_SCHEMA,
         )

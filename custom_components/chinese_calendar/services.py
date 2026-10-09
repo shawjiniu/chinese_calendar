@@ -13,6 +13,8 @@ from .const import DOMAIN
 SERVICE_SET_ANNIVERSARY = "set_anniversary"
 SERVICE_REMOVE_ANNIVERSARY = "remove_anniversary"
 SERVICE_GET_MONTH = "get_month"
+SERVICE_SET_CUSTOM_HOLIDAY = "set_custom_holiday"
+SERVICE_REMOVE_CUSTOM_HOLIDAY = "remove_custom_holiday"
 
 
 def _date_validator(value: str) -> str:
@@ -34,6 +36,15 @@ REMOVE_ANNIVERSARY_SCHEMA = vol.Schema({
 GET_MONTH_SCHEMA = vol.Schema({
     vol.Required("year"): vol.Coerce(int),
     vol.Required("month"): vol.All(vol.Coerce(int), vol.Range(min=1, max=12)),
+})
+
+SET_CUSTOM_HOLIDAY_SCHEMA = vol.Schema({
+    vol.Required("name"): cv.string,
+    vol.Required("date"): vol.All(cv.string, _date_validator),
+})
+
+REMOVE_CUSTOM_HOLIDAY_SCHEMA = vol.Schema({
+    vol.Required("name"): cv.string,
 })
 
 
@@ -96,3 +107,34 @@ async def async_get_month(call: ServiceCall):
         options.get("holiday_extra", ""),
         options.get("custom_holidays", []),
     )
+
+
+async def async_set_custom_holiday(call: ServiceCall) -> None:
+    """新增或更新自定义假日（按 name upsert）。"""
+    hass = call.hass
+    entry = _get_entry(hass)
+    if entry is None:
+        return
+    options = dict(entry.options)
+    custom_holidays = [dict(h) for h in options.get("custom_holidays", [])]
+    name = str(call.data["name"]).strip()
+    new_item = {"name": name, "date": str(call.data["date"]).strip()}
+    custom_holidays = [h for h in custom_holidays if h.get("name") != name]
+    custom_holidays.append(new_item)
+    options["custom_holidays"] = custom_holidays
+    hass.config_entries.async_update_entry(entry, options=options)
+
+
+async def async_remove_custom_holiday(call: ServiceCall) -> None:
+    """按 name 删除自定义假日。"""
+    hass = call.hass
+    entry = _get_entry(hass)
+    if entry is None:
+        return
+    name = str(call.data["name"]).strip()
+    options = dict(entry.options)
+    custom_holidays = [
+        h for h in options.get("custom_holidays", []) if h.get("name") != name
+    ]
+    options["custom_holidays"] = custom_holidays
+    hass.config_entries.async_update_entry(entry, options=options)
