@@ -87,34 +87,6 @@ def next_holiday(today: date) -> dict | None:
     return {"name": name, "date": d.isoformat(), "days_left": (d - today).days}
 
 
-def resolve_holidays(today: date) -> list[dict]:
-    """未来法定节假日列表（按日期升序，同名去重只保留起始日）。"""
-    result: list[dict] = []
-    seen_names: set[str] = set()
-    for y in (today.year, today.year + 1):
-        try:
-            hs = HolidayUtil.getHolidays(y)
-        except Exception:  # noqa: BLE001
-            continue
-        for h in hs or []:
-            if h.isWork():
-                continue
-            d = _parse_iso(h.getDay())
-            if d is None or d < today:
-                continue
-            name = h.getName()
-            if name in seen_names:
-                continue
-            seen_names.add(name)
-            result.append({
-                "name": name,
-                "date": d.isoformat(),
-                "days_left": (d - today).days,
-            })
-    result.sort(key=lambda x: x["date"])
-    return result
-
-
 def _parse_iso(s: str) -> date | None:
     try:
         return date.fromisoformat(s)
@@ -405,7 +377,6 @@ def build_attributes(anniversaries, holiday_extra: str, today: date, custom_holi
         "is_adjusted_workday": is_adjusted,
         "festivals": festivals_of(solar, lunar),
         "next_holiday": next_holiday(today),
-        "holidays": resolve_holidays(today),
         "next_anniversary": next_anniv,
         "anniversaries": anniv_list,
         "configured_anniversaries": list(anniversaries or []),
