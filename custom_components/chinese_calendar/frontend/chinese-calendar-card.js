@@ -120,7 +120,7 @@ const ct={attribute:!0,type:String,converter:$,reflect:!1,hasChanged:f},ht=(t=ct
     font-weight: 500;
   }
   .cc-custom-holiday {
-    color: #7b1fa2;
+    color: #ff9800;
     font-weight: 500;
   }
 
@@ -248,7 +248,7 @@ const ct={attribute:!0,type:String,converter:$,reflect:!1,hasChanged:f},ht=(t=ct
     color: #d32f2f;
   }
   .cc-marker-custom-holiday {
-    color: #7b1fa2;
+    color: #ff9800;
   }
   .cc-marker-workday {
     color: var(--secondary-text-color);
