@@ -222,7 +222,36 @@ def term_of(lunar: Lunar) -> tuple[str, str]:
     return name, ""
 
 
-def _month_day(dd: date, today: date, parsed: list[dict]) -> dict:
+def _parse_custom_holidays(items) -> list[dict]:
+    """解析自定义假日，返回 [{name, month, day}]。"""
+    result: list[dict] = []
+    for item in items or []:
+        try:
+            name = str(item.get("name", "")).strip()
+            raw = str(item.get("date", "")).strip()
+            if len(raw) != 4:
+                continue
+            month = int(raw[:2])
+            day = int(raw[2:])
+            if not (1 <= month <= 12 and 1 <= day <= 31):
+                continue
+            if not name:
+                continue
+            result.append({"name": name, "month": month, "day": day})
+        except Exception:  # noqa: BLE001
+            continue
+    return result
+
+
+def _custom_holiday_name(dd: date, custom_holidays) -> str:
+    """返回当天自定义假日名，无则空串。"""
+    for h in custom_holidays or []:
+        if (dd.month, dd.day) == (h["month"], h["day"]):
+            return h["name"]
+    return ""
+
+
+def _month_day(dd: date, today: date, parsed: list[dict], custom_holidays: list[dict]) -> dict:
     solar = Solar.fromYmd(dd.year, dd.month, dd.day)
     lunar = solar.getLunar()
     status, holiday_name, _ = holiday_status(dd)
@@ -248,6 +277,7 @@ def _month_day(dd: date, today: date, parsed: list[dict]) -> dict:
         "term": term,
         "holiday_status": status,
         "holiday_name": holiday_name,
+        "custom_holiday_name": _custom_holiday_name(dd, custom_holidays),
         "festivals": festivals_of(solar, lunar),
         "anniversaries": names,
         "is_today": dd == today,
@@ -255,15 +285,21 @@ def _month_day(dd: date, today: date, parsed: list[dict]) -> dict:
 
 
 def build_month(
-    year: int, month: int, today: date, anniversaries, holiday_extra: str = ""
+    year: int,
+    month: int,
+    today: date,
+    anniversaries,
+    holiday_extra: str = "",
+    custom_holidays=None,
 ) -> dict:
     """构建指定月份的日历数据（供实体属性与 get_month 服务调用）。"""
     apply_holiday_extra(holiday_extra)
     parsed = _parse_anniversaries(anniversaries)
+    ch = _parse_custom_holidays(custom_holidays)
     days_in_month = _days_in_month(year, month)
     first_weekday = date(year, month, 1).weekday()
     month_days = [
-        _month_day(date(year, month, d), today, parsed)
+        _month_day(date(year, month, d), today, parsed, ch)
         for d in range(1, days_in_month + 1)
     ]
     return {
@@ -275,9 +311,10 @@ def build_month(
     }
 
 
-def build_attributes(anniversaries, holiday_extra: str, today: date) -> dict:
+def build_attributes(anniversaries, holiday_extra: str, today: date, custom_holidays=None) -> dict:
     """§2 全量属性 + next_holiday/next_anniversary。"""
     apply_holiday_extra(holiday_extra)
+    ch = _parse_custom_holidays(custom_holidays)
 
     solar = Solar.fromYmd(today.year, today.month, today.day)
     lunar = solar.getLunar()
@@ -323,10 +360,11 @@ def build_attributes(anniversaries, holiday_extra: str, today: date) -> dict:
         "holiday_status": status,
         "holiday_status_cn": STATUS_CN[status],
         "holiday_name": holiday_name,
+        "custom_holiday_name": _custom_holiday_name(today, ch),
         "is_adjusted_workday": is_adjusted,
         "festivals": festivals_of(solar, lunar),
         "next_holiday": next_holiday(today),
         "next_anniversary": next_anniv,
         "anniversaries": anniv_list,
-        "month": build_month(today.year, today.month, today, anniversaries, holiday_extra),
+        "month": build_month(today.year, today.month, today, anniversaries, holiday_extra, custom_holidays),
     }

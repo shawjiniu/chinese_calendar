@@ -16,10 +16,12 @@
         "title": "Anniversaries",
         "description": "Add solar/lunar anniversaries (optional).",
         "data": {
-          "anniversaries_text": "Anniversaries"
+          "anniversaries_text": "Anniversaries",
+          "custom_holidays_text": "Custom holidays"
         },
         "data_description": {
-          "anniversaries_text": "Separate entries with ';'. Entry format: name|type|date. type = solar (Gregorian) or lunar (Chinese lunar); date = MMDD (recur yearly) or YYYYMMDD (with year, shows age/anniversary). Example: Mom|lunar|0321; Wedding|solar|20101010"
+          "anniversaries_text": "Separate entries with ';'. Entry format: name|type|date. type = solar (Gregorian) or lunar (Chinese lunar); date = MMDD (recur yearly) or YYYYMMDD (with year, shows age/anniversary). Example: Mom|lunar|0321; Wedding|solar|20101010",
+          "custom_holidays_text": "Separate entries with ';'. Entry format: name|date. date = MMDD (recur yearly), shown in the calendar like statutory holidays. Example: Christmas|1225; Company Day|0510"
         }
       }
     },
@@ -42,10 +44,12 @@
       "anniversary": {
         "title": "Anniversaries",
         "data": {
-          "anniversaries_text": "Anniversaries"
+          "anniversaries_text": "Anniversaries",
+          "custom_holidays_text": "Custom holidays"
         },
         "data_description": {
-          "anniversaries_text": "Separate entries with ';'. Entry format: name|type|date. type = solar (Gregorian) or lunar (Chinese lunar); date = MMDD (recur yearly) or YYYYMMDD (with year, shows age/anniversary). Example: Mom|lunar|0321; Wedding|solar|20101010"
+          "anniversaries_text": "Separate entries with ';'. Entry format: name|type|date. type = solar (Gregorian) or lunar (Chinese lunar); date = MMDD (recur yearly) or YYYYMMDD (with year, shows age/anniversary). Example: Mom|lunar|0321; Wedding|solar|20101010",
+          "custom_holidays_text": "Separate entries with ';'. Entry format: name|date. date = MMDD (recur yearly), shown in the calendar like statutory holidays. Example: Christmas|1225; Company Day|0510"
         }
       }
     }

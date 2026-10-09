@@ -29,9 +29,11 @@ class ChineseCalendarCoordinator(DataUpdateCoordinator[dict]):
         options = self.entry.options
         anniversaries = options.get("anniversaries", [])
         holiday_extra = options.get("holiday_extra", "")
+        custom_holidays = options.get("custom_holidays", [])
         return await self.hass.async_add_executor_job(
             provider.build_attributes,
             anniversaries,
             holiday_extra,
             provider.today_cn(),
+            custom_holidays,
         )

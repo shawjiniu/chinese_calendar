@@ -52,6 +52,40 @@ def _format_anniversaries_text(items) -> str:
     return "; ".join(out)
 
 
+def _parse_custom_holidays_text(text: str) -> list[dict]:
+    """解析 '名称|日期' 条目（以 ; 或换行分隔），日期为 MMDD。"""
+    result: list[dict] = []
+    for chunk in re.split(r"[;\n]+", text or ""):
+        chunk = chunk.strip()
+        if not chunk:
+            continue
+        parts = [p.strip() for p in chunk.split("|")]
+        if len(parts) < 2:
+            continue
+        name, date = parts[0], parts[1]
+        if not name or not re.fullmatch(r"\d{4}", date):
+            continue
+        month = int(date[:2])
+        day = int(date[2:])
+        if not (1 <= month <= 12 and 1 <= day <= 31):
+            continue
+        result.append({"name": name, "date": date})
+    return result
+
+
+def _format_custom_holidays_text(items) -> str:
+    out: list[str] = []
+    for it in items or []:
+        try:
+            name = str(it.get("name", "")).strip()
+            date = str(it.get("date", "")).strip()
+        except Exception:  # noqa: BLE001
+            continue
+        if name and date:
+            out.append(f"{name}|{date}")
+    return "; ".join(out)
+
+
 def _step_user_schema(defaults: dict | None = None) -> vol.Schema:
     d = defaults or {}
     return vol.Schema({
@@ -65,6 +99,9 @@ def _step_anniversary_schema(defaults: dict | None = None) -> vol.Schema:
     return vol.Schema({
         vol.Optional(
             "anniversaries_text", default=d.get("anniversaries_text", "")
+        ): cv.string,
+        vol.Optional(
+            "custom_holidays_text", default=d.get("custom_holidays_text", "")
         ): cv.string,
     })
 
@@ -100,6 +137,9 @@ class ChineseCalendarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     "anniversaries": _parse_anniversaries_text(
                         self._data.get("anniversaries_text", "")
                     ),
+                    "custom_holidays": _parse_custom_holidays_text(
+                        self._data.get("custom_holidays_text", "")
+                    ),
                 },
             )
         return self.async_show_form(
@@ -107,7 +147,10 @@ class ChineseCalendarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=_step_anniversary_schema({
                 "anniversaries_text": _format_anniversaries_text(
                     self._data.get("anniversaries", [])
-                )
+                ),
+                "custom_holidays_text": _format_custom_holidays_text(
+                    self._data.get("custom_holidays", [])
+                ),
             }),
         )
 
@@ -129,6 +172,7 @@ class ChineseCalendarOptionsFlow(config_entries.OptionsFlow):
             "name": o.get("name", DEFAULT_NAME),
             "holiday_extra": o.get("holiday_extra", ""),
             "anniversaries_text": _format_anniversaries_text(o.get("anniversaries", [])),
+            "custom_holidays_text": _format_custom_holidays_text(o.get("custom_holidays", [])),
         }
 
     async def async_step_init(self, user_input: dict | None = None):
@@ -148,6 +192,9 @@ class ChineseCalendarOptionsFlow(config_entries.OptionsFlow):
                 "holiday_extra": self._updated.get("holiday_extra", d["holiday_extra"]),
                 "anniversaries": _parse_anniversaries_text(
                     self._updated.get("anniversaries_text", d["anniversaries_text"])
+                ),
+                "custom_holidays": _parse_custom_holidays_text(
+                    self._updated.get("custom_holidays_text", d["custom_holidays_text"])
                 ),
             }
             return self.async_create_entry(title=merged["name"], data=merged)

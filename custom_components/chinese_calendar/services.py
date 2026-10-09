@@ -94,4 +94,5 @@ async def async_get_month(call: ServiceCall):
         provider.today_cn(),
         options.get("anniversaries", []),
         options.get("holiday_extra", ""),
+        options.get("custom_holidays", []),
     )
