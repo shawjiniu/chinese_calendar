@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import logging
-import shutil
 from pathlib import Path
 
 from homeassistant.config_entries import ConfigEntry
@@ -20,29 +19,19 @@ from .services import (
 
 
 _LOGGER = logging.getLogger(__name__)
-_FRONTEND_FILENAME = "chinese-calendar-card.js"
-_FRONTEND_SRC = Path(__file__).parent / "frontend" / _FRONTEND_FILENAME
 
-
-def _copy_frontend_to_www(hass: HomeAssistant) -> None:
-    """把打包好的前端卡片复制到 www/（经 /local/ 访问），幂等。"""
-    if not _FRONTEND_SRC.is_file():
-        _LOGGER.warning("前端文件不存在，跳过复制: %s", _FRONTEND_SRC)
-        return
-    try:
-        www_dir = Path(hass.config.path("www"))
-        www_dir.mkdir(parents=True, exist_ok=True)
-        dst = www_dir / _FRONTEND_FILENAME
-        if not dst.is_file() or _FRONTEND_SRC.read_bytes() != dst.read_bytes():
-            shutil.copyfile(_FRONTEND_SRC, dst)
-            _LOGGER.info("已复制前端卡片到 %s", dst)
-    except Exception as exc:  # noqa: BLE001
-        _LOGGER.error("复制前端文件失败: %s", exc)
+_FRONTEND_URL_PATH = "/chinese_calendar"
+_FRONTEND_DIR = Path(__file__).parent / "frontend"
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     hass.data.setdefault(DOMAIN, {})
-    await hass.async_add_executor_job(_copy_frontend_to_www, hass)
+    # 由 HA 直接托管打包好的前端卡片，URL：/chinese_calendar/chinese-calendar-card.js
+    hass.http.register_static_path(
+        _FRONTEND_URL_PATH,
+        str(_FRONTEND_DIR),
+        cache_headers=False,
+    )
     return True
 
 

@@ -33,12 +33,14 @@
 
 ## 前端卡片
 
-安装并重启后，集成会**自动把打包好的卡片复制到 `www/chinese-calendar-card.js`**（即 `/local/` 访问路径），无需手动拷贝。
+卡片已随集成打包（`custom_components/chinese_calendar/frontend/chinese-calendar-card.js`），集成启动时通过 `register_static_path` 由 HA 直接托管，URL 为 `/chinese_calendar/chinese-calendar-card.js`，无需手动拷贝文件。
+
+> 说明：卡片源码在本地 `card/` 目录开发构建（该目录不随仓库发布），仅构建产物打包进集成。
 
 1. `设置 → 仪表盘 → 右上角 ⋮ → 资源 → 添加资源`：
 
    ```yaml
-   URL: /local/chinese-calendar-card.js
+   URL: /chinese_calendar/chinese-calendar-card.js
    资源类型: JavaScript 模块
    ```
 
