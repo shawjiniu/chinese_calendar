@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, SupportsResponse
 
@@ -30,11 +31,9 @@ _FRONTEND_DIR = Path(__file__).parent / "frontend"
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     hass.data.setdefault(DOMAIN, {})
     # 由 HA 直接托管打包好的前端卡片，URL：/chinese_calendar/chinese-calendar-card.js
-    hass.http.register_static_path(
-        _FRONTEND_URL_PATH,
-        str(_FRONTEND_DIR),
-        cache_headers=False,
-    )
+    await hass.http.async_register_static_paths([
+        StaticPathConfig(_FRONTEND_URL_PATH, str(_FRONTEND_DIR), False),
+    ])
     return True
 
 
