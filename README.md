@@ -2,7 +2,7 @@
 
 一个面向 Home Assistant 的中国日历集成：提供**公历 / 农历 / 星期 / 节气 / 法定节假日与调休 / 纪念日（倒计时、周岁/周年）/ 当月日历**，数据统一由 [lunar-python](https://github.com/6tail/lunar-python) 天文算法计算，支持配置流与服务动态增删纪念日。
 
-> 当前状态：后端集成（P1）已完成；前端 Lovelace 卡片（P2）规划中。
+> 当前状态：后端集成 + 前端 Lovelace 卡片均已完成。
 
 ## 功能特性
 
@@ -30,6 +30,27 @@
 1. 将仓库中的 `custom_components/chinese_calendar/` 目录复制到 HA 配置目录的 `custom_components/` 下。
 2. 重启 Home Assistant。
 3. HA 会自动安装依赖 `lunar_python`（首次启动需联网）。
+
+## 前端卡片
+
+安装并重启后，集成会**自动把打包好的卡片复制到 `www/chinese-calendar-card.js`**（即 `/local/` 访问路径），无需手动拷贝。
+
+1. `设置 → 仪表盘 → 右上角 ⋮ → 资源 → 添加资源`：
+
+   ```yaml
+   URL: /local/chinese-calendar-card.js
+   资源类型: JavaScript 模块
+   ```
+
+2. 在仪表盘添加卡片：
+
+   ```yaml
+   type: custom:chinese-calendar-card
+   entity: sensor.chinese_calendar
+   title: 中国日历
+   ```
+
+   卡片支持 `show_solar` / `show_lunar` / `show_weekday` / `show_term` / `show_holiday` / `show_anniversary` / `show_month` / `week_start` / `show_lunar_in_month` 等显示开关，详见 [card/README.md](card/README.md)。
 
 ## 配置
 

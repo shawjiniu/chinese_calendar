@@ -2,7 +2,17 @@ import { html, TemplateResult } from "lit";
 import type { CardConfig } from "../config";
 import type { ChineseCalendarAttributes } from "../types";
 
-/** 纪念日列表：名称 + 倒计时（带年份显示周岁/周年）。 */
+function formatMonthDay(dateStr: string): string {
+  const parts = (dateStr || "").split("-");
+  if (parts.length !== 3) {
+    return dateStr || "";
+  }
+  const month = parseInt(parts[1], 10);
+  const day = parseInt(parts[2], 10);
+  return `${month}月${day}日`;
+}
+
+/** 纪念日列表：名称 + 具体日期 + 倒计时（带年份显示周岁/周年）。 */
 export function renderAnniversaries(
   config: CardConfig,
   attr: ChineseCalendarAttributes
@@ -21,6 +31,7 @@ export function renderAnniversaries(
         (a) => html`
           <div class="cc-anniv-item">
             <span class="cc-anniv-name">${a.name}</span>
+            <span class="cc-anniv-date">(${formatMonthDay(a.full_date)})</span>
             ${a.age_label
               ? html`<span class="cc-anniv-age">${a.age_label}</span>`
               : ""}

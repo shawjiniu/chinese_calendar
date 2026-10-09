@@ -56,6 +56,10 @@ export const styles = css`
   .cc-anniv-name {
     font-weight: 500;
   }
+  .cc-anniv-date {
+    color: var(--secondary-text-color);
+    font-size: 0.9em;
+  }
   .cc-anniv-age {
     color: var(--secondary-text-color);
     font-size: 0.9em;

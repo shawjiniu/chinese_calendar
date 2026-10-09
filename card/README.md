@@ -22,7 +22,9 @@ pnpm run build
 
 ## 安装到 Home Assistant
 
-1. 将 `dist/chinese-calendar-card.js` 复制到 HA 配置目录的 `www/` 下（如 `config/www/chinese-calendar-card.js`）。
+> 已安装「中国日历」集成时，集成会在启动时自动把卡片复制到 `www/chinese-calendar-card.js`，下面第 1 步可跳过。
+
+1. （手动方式）将 `dist/chinese-calendar-card.js` 复制到 HA 配置目录的 `www/` 下（如 `config/www/chinese-calendar-card.js`）。
 2. `设置 → 仪表盘 → 右上角 ⋮ → 资源 → 添加资源`：
 
    ```yaml

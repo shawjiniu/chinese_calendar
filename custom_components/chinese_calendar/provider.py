@@ -61,7 +61,8 @@ def holiday_status(d: date) -> tuple[str, str, bool]:
     if h is None:
         return (STATUS_WEEKEND if d.weekday() >= 5 else STATUS_WORKDAY, "", False)
     if h.isWork():
-        return (STATUS_ADJUSTED_WORKDAY, h.getName(), True)
+        # 调休补班：不是节假日，不返回节假日名
+        return (STATUS_ADJUSTED_WORKDAY, "", True)
     return (STATUS_HOLIDAY, h.getName(), False)
 
 
