@@ -12,6 +12,7 @@ from .const import DOMAIN
 
 SERVICE_SET_ANNIVERSARY = "set_anniversary"
 SERVICE_REMOVE_ANNIVERSARY = "remove_anniversary"
+SERVICE_GET_MONTH = "get_month"
 
 
 def _date_validator(value: str) -> str:
@@ -28,6 +29,11 @@ SET_ANNIVERSARY_SCHEMA = vol.Schema({
 
 REMOVE_ANNIVERSARY_SCHEMA = vol.Schema({
     vol.Required("name"): cv.string,
+})
+
+GET_MONTH_SCHEMA = vol.Schema({
+    vol.Required("year"): vol.Coerce(int),
+    vol.Required("month"): vol.All(vol.Coerce(int), vol.Range(min=1, max=12)),
 })
 
 
@@ -67,3 +73,22 @@ async def async_remove_anniversary(hass: HomeAssistant, call: ServiceCall) -> No
     ]
     options["anniversaries"] = anniversaries
     hass.config_entries.async_update_entry(entry, options=options)
+
+
+async def async_get_month(hass: HomeAssistant, call: ServiceCall):
+    """返回指定月份的日历数据（响应式服务）。"""
+    # 延迟导入，避免 __init__ 在依赖安装前就加载 lunar_python
+    from . import provider
+
+    entry = _get_entry(hass)
+    if entry is None:
+        return None
+    options = entry.options
+    return await hass.async_add_executor_job(
+        provider.build_month,
+        call.data["year"],
+        call.data["month"],
+        provider.today_cn(),
+        options.get("anniversaries", []),
+        options.get("holiday_extra", ""),
+    )

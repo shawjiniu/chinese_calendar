@@ -254,6 +254,27 @@ def _month_day(dd: date, today: date, parsed: list[dict]) -> dict:
     }
 
 
+def build_month(
+    year: int, month: int, today: date, anniversaries, holiday_extra: str = ""
+) -> dict:
+    """构建指定月份的日历数据（供实体属性与 get_month 服务调用）。"""
+    apply_holiday_extra(holiday_extra)
+    parsed = _parse_anniversaries(anniversaries)
+    days_in_month = _days_in_month(year, month)
+    first_weekday = date(year, month, 1).weekday()
+    month_days = [
+        _month_day(date(year, month, d), today, parsed)
+        for d in range(1, days_in_month + 1)
+    ]
+    return {
+        "year": year,
+        "month": month,
+        "days_in_month": days_in_month,
+        "first_weekday": first_weekday,
+        "days": month_days,
+    }
+
+
 def build_attributes(anniversaries, holiday_extra: str, today: date) -> dict:
     """§2 全量属性 + next_holiday/next_anniversary。"""
     apply_holiday_extra(holiday_extra)
@@ -277,13 +298,6 @@ def build_attributes(anniversaries, holiday_extra: str, today: date) -> dict:
             "type": a["type"],
             "age_label": a["age_label"],
         }
-
-    days_in_month = _days_in_month(today.year, today.month)
-    first_weekday = date(today.year, today.month, 1).weekday()
-    month_days = [
-        _month_day(date(today.year, today.month, d), today, parsed)
-        for d in range(1, days_in_month + 1)
-    ]
 
     return {
         "solar_date": today.isoformat(),
@@ -314,11 +328,5 @@ def build_attributes(anniversaries, holiday_extra: str, today: date) -> dict:
         "next_holiday": next_holiday(today),
         "next_anniversary": next_anniv,
         "anniversaries": anniv_list,
-        "month": {
-            "year": today.year,
-            "month": today.month,
-            "days_in_month": days_in_month,
-            "first_weekday": first_weekday,
-            "days": month_days,
-        },
+        "month": build_month(today.year, today.month, today, anniversaries, holiday_extra),
     }

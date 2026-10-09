@@ -5,14 +5,17 @@ import logging
 from pathlib import Path
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, SupportsResponse
 
 from .const import DOMAIN, PLATFORMS
 from .services import (
+    GET_MONTH_SCHEMA,
     REMOVE_ANNIVERSARY_SCHEMA,
+    SERVICE_GET_MONTH,
     SERVICE_REMOVE_ANNIVERSARY,
     SERVICE_SET_ANNIVERSARY,
     SET_ANNIVERSARY_SCHEMA,
+    async_get_month,
     async_remove_anniversary,
     async_set_anniversary,
 )
@@ -70,4 +73,12 @@ def _register_services(hass: HomeAssistant) -> None:
             SERVICE_REMOVE_ANNIVERSARY,
             async_remove_anniversary,
             schema=REMOVE_ANNIVERSARY_SCHEMA,
+        )
+    if not hass.services.has_service(DOMAIN, SERVICE_GET_MONTH):
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_GET_MONTH,
+            async_get_month,
+            schema=GET_MONTH_SCHEMA,
+            supports_response=SupportsResponse.OPTIONAL,
         )
