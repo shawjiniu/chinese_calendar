@@ -1,6 +1,6 @@
 # 中国日历（Chinese Calendar）
 
-一个面向 Home Assistant 的中国日历集成：提供**公历 / 农历 / 星期 / 节气 / 法定节假日与调休 / 自定义假日 / 纪念日（倒计时、周岁/周年）/ 当月日历**，数据统一由 [lunar-python](https://github.com/6tail/lunar-python) 天文算法计算，支持配置流、服务与卡片内联增删。
+一个面向 Home Assistant 的中国日历集成：提供**公历 / 农历 / 星期 / 节气 / 法定节假日与调休 / 自定义假日 / 纪念日（倒计时、周岁/周年）/ 节假日列表 / 当月日历**，数据统一由 [lunar-python](https://github.com/6tail/lunar-python) 天文算法计算，支持配置流、服务与卡片内联增删。
 
 > 当前状态：后端集成 + 前端 Lovelace 卡片均已完成。
 
@@ -15,7 +15,8 @@
 - **直读子实体**：常用值独立成实体，模板/自动化可用 `states()` 直接访问。
 - **当月日历数据**：后端输出当月每一天的农历/节气/节假日/纪念日，供卡片渲染月历网格。
 - **服务**：`set_anniversary` / `remove_anniversary` / `set_custom_holiday` / `remove_custom_holiday`，可在卡片或自动化中动态增删。
-- **自定义假日**：可设置日期与名称，`MMDD` 每年循环、`YYYYMMDD` 仅当年；日历中以紫色显示（区别于法定节假日的红色）。
+- **自定义假日**：可设置日期与名称，`MMDD` 每年循环、`YYYYMMDD` 仅当年；日历中以橙色显示（区别于法定节假日的红色）。
+- **法定节假日列表**：卡片可显示未来法定节假日列表（名称 + 倒计时）。
 - **卡片内联增删**：卡片内「＋ 添加」按钮直接添加纪念日/自定义假日，列表项可一键删除。
 
 ## 安装
@@ -54,7 +55,7 @@
    title: 中国日历
    ```
 
-   卡片支持 `show_solar` / `show_lunar` / `show_weekday` / `show_term` / `show_holiday` / `show_custom_holiday` / `show_anniversary` / `show_month` / `week_start` / `show_lunar_in_month` / `show_manage` 等配置项，并内置**可视化配置编辑器**（点卡片「编辑」即可图形化配置，无需手写 YAML）。详见 [card/README.md](card/README.md)。
+   卡片支持 `show_solar` / `show_weekday` / `show_lunar` / `show_term` / `show_holiday` / `show_anniversary` / `show_holiday_list` / `show_custom_holiday_list` / `show_month` / `show_lunar_in_month` / `week_start` / `show_custom_holiday` / `show_manage` 等配置项，并内置**可视化配置编辑器**（点卡片「编辑」即可图形化配置，无需手写 YAML；「月历内显示农历 / 周起始日 / 节假日 / 自定义假日」随「当月日历」联动）。详见 [card/README.md](card/README.md)。
 
 ## 配置
 
