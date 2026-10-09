@@ -54,7 +54,7 @@
    title: 中国日历
    ```
 
-   卡片支持 `show_solar` / `show_lunar` / `show_weekday` / `show_term` / `show_holiday` / `show_anniversary` / `show_month` / `week_start` / `show_lunar_in_month` 等显示开关，详见 [card/README.md](card/README.md)。
+   卡片支持 `show_solar` / `show_lunar` / `show_weekday` / `show_term` / `show_holiday` / `show_custom_holiday` / `show_anniversary` / `show_month` / `week_start` / `show_lunar_in_month` / `show_manage` 等配置项，并内置**可视化配置编辑器**（点卡片「编辑」即可图形化配置，无需手写 YAML）。详见 [card/README.md](card/README.md)。
 
 ## 配置
 
