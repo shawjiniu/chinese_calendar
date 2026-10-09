@@ -54,7 +54,7 @@
    title: 中国日历
    ```
 
-   卡片支持 `show_solar` / `show_weekday` / `show_lunar` / `show_anniversary` / `show_custom_holiday_list` / `show_month` / `week_start` / `show_lunar_in_month` / `show_term` / `show_holiday` / `show_custom_holiday` / `show_manage` 等配置项，并内置**可视化配置编辑器**（点卡片「编辑」即可图形化配置，无需手写 YAML；「月历内周起始日 / 月历内显示农历 / 月历内显示节气 / 节假日 / 月历内显示自定义假日」随「月历」联动并缩进显示）。详见 [card/README.md](card/README.md)。
+   卡片支持 `show_solar` / `show_weekday` / `show_lunar` / `show_header_term` / `show_header_anniversary` / `show_header_holiday` / `show_anniversary` / `show_custom_holiday_list` / `show_month` / `week_start` / `show_lunar_in_month` / `show_term` / `show_holiday` / `show_custom_holiday` / `show_manage` 等配置项，并内置**可视化配置编辑器**（点卡片「编辑」即可图形化配置，无需手写 YAML；「月历内周起始日 / 月历内显示农历 / 月历内显示节气 / 月历内显示节假日 / 月历内显示自定义假日」随「月历」联动并缩进显示）。详见 [card/README.md](card/README.md)。
 
 ## 配置
 
