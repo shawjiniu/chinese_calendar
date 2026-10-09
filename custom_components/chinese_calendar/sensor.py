@@ -30,6 +30,8 @@ async def async_setup_entry(
     """创建 coordinator 与全部实体。"""
     coordinator = ChineseCalendarCoordinator(hass, entry)
     await coordinator.async_config_entry_first_refresh()
+    # 供服务增删纪念日/自定义假日后直接刷新
+    hass.data.setdefault(DOMAIN, {})["coordinator"] = coordinator
 
     entities: list[SensorEntity] = [ChineseCalendarMainSensor(coordinator, entry)]
     entities.extend(

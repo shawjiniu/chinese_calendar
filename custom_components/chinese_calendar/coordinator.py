@@ -7,7 +7,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from . import provider
+from . import provider, store
 from .const import DOMAIN, UPDATE_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
@@ -26,14 +26,12 @@ class ChineseCalendarCoordinator(DataUpdateCoordinator[dict]):
         self.entry = entry
 
     async def _async_update_data(self) -> dict:
-        options = self.entry.options
-        anniversaries = options.get("anniversaries", [])
-        holiday_extra = options.get("holiday_extra", "")
-        custom_holidays = options.get("custom_holidays", [])
+        runtime = await store.load_runtime(self.hass)
+        holiday_extra = self.entry.options.get("holiday_extra", "")
         return await self.hass.async_add_executor_job(
             provider.build_attributes,
-            anniversaries,
+            runtime["anniversaries"],
             holiday_extra,
             provider.today_cn(),
-            custom_holidays,
+            runtime["custom_holidays"],
         )

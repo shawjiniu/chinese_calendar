@@ -1,6 +1,6 @@
 # 中国日历（Chinese Calendar）
 
-一个面向 Home Assistant 的中国日历集成：提供**公历 / 农历 / 星期 / 节气 / 法定节假日与调休 / 纪念日（倒计时、周岁/周年）/ 当月日历**，数据统一由 [lunar-python](https://github.com/6tail/lunar-python) 天文算法计算，支持配置流与服务动态增删纪念日。
+一个面向 Home Assistant 的中国日历集成：提供**公历 / 农历 / 星期 / 节气 / 法定节假日与调休 / 自定义假日 / 纪念日（倒计时、周岁/周年）/ 当月日历**，数据统一由 [lunar-python](https://github.com/6tail/lunar-python) 天文算法计算，支持配置流、服务与卡片内联增删。
 
 > 当前状态：后端集成 + 前端 Lovelace 卡片均已完成。
 
@@ -14,7 +14,9 @@
   - 输出名称 + 倒计时天数 + 年龄标签（含“生日”显示「X周岁」，否则「X周年」）。
 - **直读子实体**：常用值独立成实体，模板/自动化可用 `states()` 直接访问。
 - **当月日历数据**：后端输出当月每一天的农历/节气/节假日/纪念日，供卡片渲染月历网格。
-- **服务**：`set_anniversary` / `remove_anniversary`，可在卡片或自动化中动态增删纪念日。
+- **服务**：`set_anniversary` / `remove_anniversary` / `set_custom_holiday` / `remove_custom_holiday`，可在卡片或自动化中动态增删。
+- **自定义假日**：可设置日期与名称，`MMDD` 每年循环、`YYYYMMDD` 仅当年；日历中以紫色显示（区别于法定节假日的红色）。
+- **卡片内联增删**：卡片内「＋ 添加」按钮直接添加纪念日/自定义假日，列表项可一键删除。
 
 ## 安装
 
@@ -60,6 +62,7 @@
 
 1. **基本设置**：名称（默认「中国日历」）、节假日数据覆盖（可选）。
 2. **纪念日**：以文本填写，多条用分号 `;` 分隔，单条格式 `名称|类型|日期`（类型 `solar`=公历 / `lunar`=农历；日期 `MMDD` 或 `YYYYMMDD`）。例：`妈妈生日|lunar|0321; 结婚纪念日|solar|20101010`
+3. **自定义假日**：以文本填写，多条用分号 `;` 分隔，单条格式 `名称|日期`（日期 `MMDD` 每年循环 / `YYYYMMDD` 仅当年）。例：`圣诞节|1225; 公司周年|20261001`
 
 > **节假日数据覆盖（可选）**：lunar-python 内置法定节假日数据截至 2026 年；若库版本未及时更新，可在此粘贴增量数据（lunar-python `HolidayUtil.fix` 的 18 位/天格式）。
 
@@ -112,6 +115,38 @@ data:
 service: chinese_calendar.remove_anniversary
 data:
   name: "妈妈生日"
+```
+
+### `chinese_calendar.set_custom_holiday`
+
+新增或更新自定义假日（按 `name` 去重）。
+
+```yaml
+service: chinese_calendar.set_custom_holiday
+data:
+  name: "圣诞节"
+  date: "1225"      # MMDD（每年循环）或 YYYYMMDD（仅当年）
+```
+
+### `chinese_calendar.remove_custom_holiday`
+
+按 `name` 删除自定义假日。
+
+```yaml
+service: chinese_calendar.remove_custom_holiday
+data:
+  name: "圣诞节"
+```
+
+### `chinese_calendar.get_month`
+
+响应式服务，返回指定月份日历数据（卡片切换月份用）。
+
+```yaml
+service: chinese_calendar.get_month
+data:
+  year: 2026
+  month: 10
 ```
 
 ## 设计文档

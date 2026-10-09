@@ -10,6 +10,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import callback
 from homeassistant.helpers import config_validation as cv
 
+from . import store
 from .const import DEFAULT_NAME, DOMAIN
 
 _SINGLETON = DOMAIN
@@ -128,30 +129,26 @@ class ChineseCalendarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             self._data.update(user_input)
             name = self._data.get("name", DEFAULT_NAME)
+            # 运行时数据（纪念日/自定义假日）写入 Store
+            await store.save_runtime(self.hass, {
+                "anniversaries": _parse_anniversaries_text(
+                    self._data.get("anniversaries_text", "")
+                ),
+                "custom_holidays": _parse_custom_holidays_text(
+                    self._data.get("custom_holidays_text", "")
+                ),
+            })
             return self.async_create_entry(
                 title=name,
                 data={},
                 options={
                     "name": name,
                     "holiday_extra": self._data.get("holiday_extra", ""),
-                    "anniversaries": _parse_anniversaries_text(
-                        self._data.get("anniversaries_text", "")
-                    ),
-                    "custom_holidays": _parse_custom_holidays_text(
-                        self._data.get("custom_holidays_text", "")
-                    ),
                 },
             )
         return self.async_show_form(
             step_id="anniversary",
-            data_schema=_step_anniversary_schema({
-                "anniversaries_text": _format_anniversaries_text(
-                    self._data.get("anniversaries", [])
-                ),
-                "custom_holidays_text": _format_custom_holidays_text(
-                    self._data.get("custom_holidays", [])
-                ),
-            }),
+            data_schema=_step_anniversary_schema(),
         )
 
     @staticmethod
@@ -165,17 +162,24 @@ class ChineseCalendarOptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self) -> None:
         self._updated: dict = {}
+        self._runtime: dict = {"anniversaries": [], "custom_holidays": []}
 
     def _defaults(self) -> dict:
         o = dict(self.config_entry.options)
         return {
             "name": o.get("name", DEFAULT_NAME),
             "holiday_extra": o.get("holiday_extra", ""),
-            "anniversaries_text": _format_anniversaries_text(o.get("anniversaries", [])),
-            "custom_holidays_text": _format_custom_holidays_text(o.get("custom_holidays", [])),
+            "anniversaries_text": _format_anniversaries_text(
+                self._runtime.get("anniversaries", [])
+            ),
+            "custom_holidays_text": _format_custom_holidays_text(
+                self._runtime.get("custom_holidays", [])
+            ),
         }
 
     async def async_step_init(self, user_input: dict | None = None):
+        # 预加载运行时数据用于表单预填
+        self._runtime = await store.load_runtime(self.hass)
         if user_input is not None:
             self._updated.update(user_input)
             return await self.async_step_anniversary()
@@ -187,17 +191,20 @@ class ChineseCalendarOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             self._updated.update(user_input)
             d = self._defaults()
-            merged = {
-                "name": self._updated.get("name", d["name"]),
-                "holiday_extra": self._updated.get("holiday_extra", d["holiday_extra"]),
+            name = self._updated.get("name", d["name"])
+            holiday_extra = self._updated.get("holiday_extra", d["holiday_extra"])
+            await store.save_runtime(self.hass, {
                 "anniversaries": _parse_anniversaries_text(
                     self._updated.get("anniversaries_text", d["anniversaries_text"])
                 ),
                 "custom_holidays": _parse_custom_holidays_text(
                     self._updated.get("custom_holidays_text", d["custom_holidays_text"])
                 ),
-            }
-            return self.async_create_entry(title=merged["name"], data=merged)
+            })
+            return self.async_create_entry(
+                title=name,
+                data={"name": name, "holiday_extra": holiday_extra},
+            )
         return self.async_show_form(
             step_id="anniversary", data_schema=_step_anniversary_schema(self._defaults())
         )

@@ -1,4 +1,4 @@
-"""服务：set_anniversary / remove_anniversary。"""
+"""服务：纪念日 / 自定义假日 / 月份查询。"""
 from __future__ import annotations
 
 import re
@@ -8,6 +8,7 @@ import voluptuous as vol
 from homeassistant.core import HomeAssistant, ServiceCall
 import homeassistant.helpers.config_validation as cv
 
+from . import store
 from .const import DOMAIN
 
 SERVICE_SET_ANNIVERSARY = "set_anniversary"
@@ -53,14 +54,18 @@ def _get_entry(hass: HomeAssistant):
     return entries[0] if entries else None
 
 
+async def _refresh(hass: HomeAssistant) -> None:
+    """通知 coordinator 刷新（不触发整体 reload）。"""
+    coordinator = hass.data.get(DOMAIN, {}).get("coordinator")
+    if coordinator is not None:
+        await coordinator.async_request_refresh()
+
+
 async def async_set_anniversary(call: ServiceCall) -> None:
     """新增或更新纪念日（按 name upsert）。"""
     hass = call.hass
-    entry = _get_entry(hass)
-    if entry is None:
-        return
-    options = dict(entry.options)
-    anniversaries = [dict(a) for a in options.get("anniversaries", [])]
+    runtime = await store.load_runtime(hass)
+    anniversaries = [dict(a) for a in runtime["anniversaries"]]
     name = str(call.data["name"]).strip()
     new_item = {
         "name": name,
@@ -69,23 +74,47 @@ async def async_set_anniversary(call: ServiceCall) -> None:
     }
     anniversaries = [a for a in anniversaries if a.get("name") != name]
     anniversaries.append(new_item)
-    options["anniversaries"] = anniversaries
-    hass.config_entries.async_update_entry(entry, options=options)
+    runtime["anniversaries"] = anniversaries
+    await store.save_runtime(hass, runtime)
+    await _refresh(hass)
 
 
 async def async_remove_anniversary(call: ServiceCall) -> None:
     """按 name 删除纪念日。"""
     hass = call.hass
-    entry = _get_entry(hass)
-    if entry is None:
-        return
     name = str(call.data["name"]).strip()
-    options = dict(entry.options)
-    anniversaries = [
-        a for a in options.get("anniversaries", []) if a.get("name") != name
+    runtime = await store.load_runtime(hass)
+    runtime["anniversaries"] = [
+        a for a in runtime["anniversaries"] if a.get("name") != name
     ]
-    options["anniversaries"] = anniversaries
-    hass.config_entries.async_update_entry(entry, options=options)
+    await store.save_runtime(hass, runtime)
+    await _refresh(hass)
+
+
+async def async_set_custom_holiday(call: ServiceCall) -> None:
+    """新增或更新自定义假日（按 name upsert）。"""
+    hass = call.hass
+    runtime = await store.load_runtime(hass)
+    custom_holidays = [dict(h) for h in runtime["custom_holidays"]]
+    name = str(call.data["name"]).strip()
+    new_item = {"name": name, "date": str(call.data["date"]).strip()}
+    custom_holidays = [h for h in custom_holidays if h.get("name") != name]
+    custom_holidays.append(new_item)
+    runtime["custom_holidays"] = custom_holidays
+    await store.save_runtime(hass, runtime)
+    await _refresh(hass)
+
+
+async def async_remove_custom_holiday(call: ServiceCall) -> None:
+    """按 name 删除自定义假日。"""
+    hass = call.hass
+    name = str(call.data["name"]).strip()
+    runtime = await store.load_runtime(hass)
+    runtime["custom_holidays"] = [
+        h for h in runtime["custom_holidays"] if h.get("name") != name
+    ]
+    await store.save_runtime(hass, runtime)
+    await _refresh(hass)
 
 
 async def async_get_month(call: ServiceCall):
@@ -94,47 +123,17 @@ async def async_get_month(call: ServiceCall):
     from . import provider
 
     hass = call.hass
+    runtime = await store.load_runtime(hass)
+    holiday_extra = ""
     entry = _get_entry(hass)
-    if entry is None:
-        return None
-    options = entry.options
+    if entry is not None:
+        holiday_extra = entry.options.get("holiday_extra", "")
     return await hass.async_add_executor_job(
         provider.build_month,
         call.data["year"],
         call.data["month"],
         provider.today_cn(),
-        options.get("anniversaries", []),
-        options.get("holiday_extra", ""),
-        options.get("custom_holidays", []),
+        runtime["anniversaries"],
+        holiday_extra,
+        runtime["custom_holidays"],
     )
-
-
-async def async_set_custom_holiday(call: ServiceCall) -> None:
-    """新增或更新自定义假日（按 name upsert）。"""
-    hass = call.hass
-    entry = _get_entry(hass)
-    if entry is None:
-        return
-    options = dict(entry.options)
-    custom_holidays = [dict(h) for h in options.get("custom_holidays", [])]
-    name = str(call.data["name"]).strip()
-    new_item = {"name": name, "date": str(call.data["date"]).strip()}
-    custom_holidays = [h for h in custom_holidays if h.get("name") != name]
-    custom_holidays.append(new_item)
-    options["custom_holidays"] = custom_holidays
-    hass.config_entries.async_update_entry(entry, options=options)
-
-
-async def async_remove_custom_holiday(call: ServiceCall) -> None:
-    """按 name 删除自定义假日。"""
-    hass = call.hass
-    entry = _get_entry(hass)
-    if entry is None:
-        return
-    name = str(call.data["name"]).strip()
-    options = dict(entry.options)
-    custom_holidays = [
-        h for h in options.get("custom_holidays", []) if h.get("name") != name
-    ]
-    options["custom_holidays"] = custom_holidays
-    hass.config_entries.async_update_entry(entry, options=options)

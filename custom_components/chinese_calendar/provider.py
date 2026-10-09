@@ -379,5 +379,7 @@ def build_attributes(anniversaries, holiday_extra: str, today: date, custom_holi
         "next_holiday": next_holiday(today),
         "next_anniversary": next_anniv,
         "anniversaries": anniv_list,
+        "configured_anniversaries": list(anniversaries or []),
+        "configured_custom_holidays": list(custom_holidays or []),
         "month": build_month(today.year, today.month, today, anniversaries, holiday_extra, custom_holidays),
     }

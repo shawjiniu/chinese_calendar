@@ -8,6 +8,7 @@ from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, SupportsResponse
 
+from . import store
 from .const import DOMAIN, PLATFORMS
 from .services import (
     GET_MONTH_SCHEMA,
@@ -43,9 +44,26 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     return True
 
 
+async def _migrate_runtime(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """把旧版存于 options 的纪念日/自定义假日迁移到 Store（一次性）。"""
+    runtime = await store.load_runtime(hass)
+    if runtime["anniversaries"] or runtime["custom_holidays"]:
+        return  # Store 已有数据，无需迁移
+    options = entry.options
+    old_anniversaries = options.get("anniversaries", [])
+    old_custom_holidays = options.get("custom_holidays", [])
+    if old_anniversaries or old_custom_holidays:
+        await store.save_runtime(hass, {
+            "anniversaries": old_anniversaries,
+            "custom_holidays": old_custom_holidays,
+        })
+        _LOGGER.info("已把旧版纪念日/自定义假日迁移到 Store")
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = entry
+    await _migrate_runtime(hass, entry)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_update_options))
     _register_services(hass)
@@ -56,6 +74,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id, None)
+        hass.data[DOMAIN].pop("coordinator", None)
     return unload_ok
 
 
