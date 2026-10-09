@@ -63,10 +63,10 @@ const ct={attribute:!0,type:String,converter:$,reflect:!1,hasChanged:g},ht=(t=ct
         ${a.map(t=>B`<div class="cc-wd">${t}</div>`)}
       </div>
       <div class="cc-grid">
-        ${h.map(e=>e?function(t,e){const s=["cc-cell"];e.is_today&&s.push("cc-today");"holiday"===e.holiday_status&&s.push("cc-rest");"adjusted_workday"===e.holiday_status&&s.push("cc-workday");const i=[];"holiday"===e.holiday_status&&e.holiday_name?i.push(B`<span class="cc-marker cc-marker-holiday">${e.holiday_name}</span>`):"adjusted_workday"===e.holiday_status&&i.push(B`<span class="cc-marker cc-marker-workday">班</span>`);t.show_term&&e.term&&i.push(B`<span class="cc-marker cc-marker-term">${e.term}</span>`);e.anniversaries.length&&i.push(B`<span class="cc-marker cc-marker-anniv"
+        ${h.map(e=>e?function(t,e){const s=["cc-cell"];e.is_today&&s.push("cc-today");"holiday"===e.holiday_status&&s.push("cc-rest");"adjusted_workday"===e.holiday_status&&s.push("cc-workday");const i=[];"holiday"===e.holiday_status&&e.holiday_name&&i.push(B`<span class="cc-marker cc-marker-holiday">${e.holiday_name}</span>`);t.show_term&&e.term&&i.push(B`<span class="cc-marker cc-marker-term">${e.term}</span>`);e.anniversaries.length&&i.push(B`<span class="cc-marker cc-marker-anniv"
         >${e.anniversaries.length} 纪念</span
       >`);return B`
-    <div class="${s.join(" ")}" title="${function(t){const e=[mt(t.date)];t.term&&e.push(t.term);"holiday"===t.holiday_status&&t.holiday_name?e.push(t.holiday_name):"adjusted_workday"===t.holiday_status&&e.push(t.holiday_name?`调休补班（${t.holiday_name}）`:"调休补班");t.anniversaries.length&&e.push(`纪念日：${t.anniversaries.join("、")}`);return e.join(" · ")}(e)}">
+    <div class="${s.join(" ")}" title="${function(t){const e=[mt(t.date)];t.term&&e.push(t.term);"holiday"===t.holiday_status&&t.holiday_name?e.push(t.holiday_name):"adjusted_workday"===t.holiday_status&&e.push(t.holiday_name?`调休补班（${t.holiday_name}）`:"调休补班");t.anniversaries.length&&e.push(`纪念日：${t.anniversaries.join("、")}`);return e.join("\n")}(e)}">
       <div class="cc-day-num">${e.day}</div>
       ${t.show_lunar_in_month?B`<div class="cc-day-lunar">${e.lunar_day_cn}</div>`:""}
       ${i.length?B`<div class="cc-day-markers">${i}</div>`:""}

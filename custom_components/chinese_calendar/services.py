@@ -42,8 +42,9 @@ def _get_entry(hass: HomeAssistant):
     return entries[0] if entries else None
 
 
-async def async_set_anniversary(hass: HomeAssistant, call: ServiceCall) -> None:
+async def async_set_anniversary(call: ServiceCall) -> None:
     """新增或更新纪念日（按 name upsert）。"""
+    hass = call.hass
     entry = _get_entry(hass)
     if entry is None:
         return
@@ -61,8 +62,9 @@ async def async_set_anniversary(hass: HomeAssistant, call: ServiceCall) -> None:
     hass.config_entries.async_update_entry(entry, options=options)
 
 
-async def async_remove_anniversary(hass: HomeAssistant, call: ServiceCall) -> None:
+async def async_remove_anniversary(call: ServiceCall) -> None:
     """按 name 删除纪念日。"""
+    hass = call.hass
     entry = _get_entry(hass)
     if entry is None:
         return
@@ -75,11 +77,12 @@ async def async_remove_anniversary(hass: HomeAssistant, call: ServiceCall) -> No
     hass.config_entries.async_update_entry(entry, options=options)
 
 
-async def async_get_month(hass: HomeAssistant, call: ServiceCall):
+async def async_get_month(call: ServiceCall):
     """返回指定月份的日历数据（响应式服务）。"""
     # 延迟导入，避免 __init__ 在依赖安装前就加载 lunar_python
     from . import provider
 
+    hass = call.hass
     entry = _get_entry(hass)
     if entry is None:
         return None
