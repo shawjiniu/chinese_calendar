@@ -20,8 +20,8 @@
           "custom_holidays_text": "Custom holidays"
         },
         "data_description": {
-          "anniversaries_text": "Separate entries with ';'. Entry format: name|type|date. type = solar (Gregorian) or lunar (Chinese lunar); date = MMDD (recur yearly) or YYYYMMDD (with year, shows age/anniversary). Example: Mom|lunar|0321; Wedding|solar|20101010",
-          "custom_holidays_text": "Separate entries with ';'. Entry format: name|date. date = MMDD (recur yearly) or YYYYMMDD (once). Shown in orange to distinguish from statutory holidays (red). Example: Christmas|1225; Company Day|20261001"
+          "anniversaries_text": "Separate entries with a newline or ';'. Entry format: name|type|date. type = solar (Gregorian) or lunar (Chinese lunar); date = MMDD (recur yearly) or YYYYMMDD (with year, shows age/anniversary). Example: Mom|lunar|0321; Wedding|solar|20101010",
+          "custom_holidays_text": "Separate entries with a newline or ';'. Entry format: name|date. date = MMDD (recur yearly), YYYYMMDD (once), or YYYYMMDD-YYYYMMDD (date range). Shown in orange to distinguish from statutory holidays (red). Example: Christmas|1225; Fall break|20261112-20261116"
         }
       }
     },
@@ -48,8 +48,8 @@
           "custom_holidays_text": "Custom holidays"
         },
         "data_description": {
-          "anniversaries_text": "Separate entries with ';'. Entry format: name|type|date. type = solar (Gregorian) or lunar (Chinese lunar); date = MMDD (recur yearly) or YYYYMMDD (with year, shows age/anniversary). Example: Mom|lunar|0321; Wedding|solar|20101010",
-          "custom_holidays_text": "Separate entries with ';'. Entry format: name|date. date = MMDD (recur yearly) or YYYYMMDD (once). Shown in orange to distinguish from statutory holidays (red). Example: Christmas|1225; Company Day|20261001"
+          "anniversaries_text": "Separate entries with a newline or ';'. Entry format: name|type|date. type = solar (Gregorian) or lunar (Chinese lunar); date = MMDD (recur yearly) or YYYYMMDD (with year, shows age/anniversary). Example: Mom|lunar|0321; Wedding|solar|20101010",
+          "custom_holidays_text": "Separate entries with a newline or ';'. Entry format: name|date. date = MMDD (recur yearly), YYYYMMDD (once), or YYYYMMDD-YYYYMMDD (date range). Shown in orange to distinguish from statutory holidays (red). Example: Christmas|1225; Fall break|20261112-20261116"
         }
       }
     }

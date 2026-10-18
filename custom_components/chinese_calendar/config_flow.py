@@ -9,6 +9,7 @@ from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import callback
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import selector
 
 from . import store
 from .const import DEFAULT_NAME, DOMAIN
@@ -50,11 +51,14 @@ def _format_anniversaries_text(items) -> str:
             continue
         if name and date:
             out.append(f"{name}|{atype}|{date}")
-    return "; ".join(out)
+    return "\n".join(out)
 
 
 def _parse_custom_holidays_text(text: str) -> list[dict]:
-    """解析 '名称|日期' 条目（以 ; 或换行分隔），日期为 MMDD 或 YYYYMMDD。"""
+    """解析 '名称|日期' 条目（以 ; 或换行分隔）。
+
+    日期为 MMDD、YYYYMMDD 或 YYYYMMDD-YYYYMMDD（区间）。非法条目自动跳过。
+    """
     result: list[dict] = []
     for chunk in re.split(r"[;\n]+", text or ""):
         chunk = chunk.strip()
@@ -64,11 +68,7 @@ def _parse_custom_holidays_text(text: str) -> list[dict]:
         if len(parts) < 2:
             continue
         name, date = parts[0], parts[1]
-        if not name or not re.fullmatch(r"\d{4}|\d{8}", date):
-            continue
-        month = int(date[-4:-2])
-        day = int(date[-2:])
-        if not (1 <= month <= 12 and 1 <= day <= 31):
+        if not name or not re.fullmatch(r"\d{4}|\d{8}|\d{8}-\d{8}", date):
             continue
         result.append({"name": name, "date": date})
     return result
@@ -84,7 +84,7 @@ def _format_custom_holidays_text(items) -> str:
             continue
         if name and date:
             out.append(f"{name}|{date}")
-    return "; ".join(out)
+    return "\n".join(out)
 
 
 def _step_user_schema(defaults: dict | None = None) -> vol.Schema:
@@ -100,10 +100,10 @@ def _step_anniversary_schema(defaults: dict | None = None) -> vol.Schema:
     return vol.Schema({
         vol.Optional(
             "anniversaries_text", default=d.get("anniversaries_text", "")
-        ): cv.string,
+        ): selector.TextSelector(selector.TextSelectorConfig(multiline=True)),
         vol.Optional(
             "custom_holidays_text", default=d.get("custom_holidays_text", "")
-        ): cv.string,
+        ): selector.TextSelector(selector.TextSelectorConfig(multiline=True)),
     })
 
 

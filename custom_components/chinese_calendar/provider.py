@@ -222,31 +222,54 @@ def term_of(lunar: Lunar) -> tuple[str, str]:
     return name, ""
 
 
-def _parse_custom_holidays(items) -> list[dict]:
-    """解析自定义假日，返回 [{name, month, day, year}]。
+def _parse_date_compact(s: str) -> date | None:
+    """解析 YYYYMMDD 为 date；非法返回 None。"""
+    s = s.strip()
+    if len(s) != 8 or not s.isdigit():
+        return None
+    try:
+        return date(int(s[:4]), int(s[4:6]), int(s[6:]))
+    except Exception:  # noqa: BLE001
+        return None
 
-    date 为 MMDD（每年循环，year=None）或 YYYYMMDD（一次性，year 非 None）。
+
+def _parse_custom_holidays(items) -> list[dict]:
+    """解析自定义假日。
+
+    date 支持：
+    - MMDD：每年循环（单日，year=None）
+    - YYYYMMDD：一次性（单日）
+    - YYYYMMDD-YYYYMMDD：一次性（日期区间，含首尾，start/end 字段）
     """
     result: list[dict] = []
     for item in items or []:
         try:
             name = str(item.get("name", "")).strip()
             raw = str(item.get("date", "")).strip()
-            if len(raw) == 4:
-                year = None
+            if not name:
+                continue
+            if "-" in raw:
+                parts = raw.split("-")
+                if len(parts) != 2:
+                    continue
+                start = _parse_date_compact(parts[0])
+                end = _parse_date_compact(parts[1])
+                if start is None or end is None or start > end:
+                    continue
+                result.append({"name": name, "start": start, "end": end})
+            elif len(raw) == 4:
                 month = int(raw[:2])
                 day = int(raw[2:])
+                if not (1 <= month <= 12 and 1 <= day <= 31):
+                    continue
+                result.append({"name": name, "month": month, "day": day, "year": None})
             elif len(raw) == 8:
                 year = int(raw[:4])
                 month = int(raw[4:6])
                 day = int(raw[6:])
-            else:
-                continue
-            if not (1 <= month <= 12 and 1 <= day <= 31):
-                continue
-            if not name:
-                continue
-            result.append({"name": name, "month": month, "day": day, "year": year})
+                if not (1 <= month <= 12 and 1 <= day <= 31):
+                    continue
+                result.append({"name": name, "month": month, "day": day, "year": year})
         except Exception:  # noqa: BLE001
             continue
     return result
@@ -255,7 +278,10 @@ def _parse_custom_holidays(items) -> list[dict]:
 def _custom_holiday_name(dd: date, custom_holidays) -> str:
     """返回当天自定义假日名，无则空串。"""
     for h in custom_holidays or []:
-        if h["year"] is not None:
+        if "start" in h:
+            if h["start"] <= dd <= h["end"]:
+                return h["name"]
+        elif h["year"] is not None:
             if (dd.year, dd.month, dd.day) == (h["year"], h["month"], h["day"]):
                 return h["name"]
         else:

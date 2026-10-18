@@ -19,8 +19,8 @@ SERVICE_REMOVE_CUSTOM_HOLIDAY = "remove_custom_holiday"
 
 
 def _date_validator(value: str) -> str:
-    if not re.fullmatch(r"\d{4}|\d{8}", value):
-        raise vol.Invalid("日期需为 MMDD 或 YYYYMMDD")
+    if not re.fullmatch(r"\d{4}|\d{8}|\d{8}-\d{8}", value):
+        raise vol.Invalid("日期需为 MMDD、YYYYMMDD 或 YYYYMMDD-YYYYMMDD")
     return value
 
 
